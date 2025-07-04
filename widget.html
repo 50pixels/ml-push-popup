@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Push Notification Popup</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>🔔 Push Notification Popup</h1>
+        
+        <div class="info">
+            <h3>📱 For MobiLoud Apps</h3>
+            <p>This popup is designed to work with MobiLoud apps. It will only show when:</p>
+            <ul>
+                <li>User agent contains "canvas" (MobiLoud app context)</li>
+                <li>Push notifications are currently disabled</li>
+            </ul>
+            <p><strong>For testing in browsers:</strong> Use the "Debug Mode" button below.</p>
+        </div>
+
+        <!-- Test buttons -->
+        <button class="btn" onclick="showAutoPopup()">🚀 Auto-trigger Popup (3s delay)</button>
+        <button class="btn" onclick="showDebugMode()">🧪 Debug Mode (Browser Testing)</button>
+        <button class="btn" onclick="showCustomPopup()">🎨 Custom Styled Popup</button>
+        <button class="btn" onclick="showSingleButton()">📝 Single Button (No Decline)</button>
+        <button class="btn" onclick="showSessionLimitDemo()">🔢 Session Limit Demo (Max 2 times in 5 days)</button>
+        <button class="btn" onclick="showDarkModePopup()">🌙 Dark Mode Popup</button>
+        <button class="btn btn-secondary" onclick="triggerManualPopup()" id="manual-trigger">⚡ Manual Trigger</button>
+    </div>
+
+    <!-- Include your widget script -->
+    <script src="script.js"></script>
+
+    <script>
+        // Production Configuration for MobiLoud Apps
+        // This will auto-trigger in MobiLoud apps when push is disabled
+        const productionPopup = createPushPopup({
+            heading: "Stay Connected!",
+            text: "Enable notifications to get important updates and news delivered straight to your device.",
+            acceptText: "Enable Notifications",
+            declineText: "Maybe Later",
+            successMessage: "🎉 Perfect! You're all set to receive notifications.",
+            autoTrigger: true,
+            delay: 5000, // Show after 5 seconds
+            allowedUrls: ["*"], // Show on all pages
+            debugMode: false, // Disable for production
+            onAccept: () => {
+                console.log('User accepted push notifications');
+                // Optional: Track the event
+                if (typeof gtag !== 'undefined') {
+                    gtag('event', 'push_notification_accepted');
+                }
+            },
+            onDecline: () => {
+                console.log('User declined push notifications');
+                // Optional: Track the decline
+                if (typeof gtag !== 'undefined') {
+                    gtag('event', 'push_notification_declined');
+                }
+            }
+        });
+
+        // Demo Functions
+        function showAutoPopup() {
+            createPushPopup({
+                heading: "Welcome!",
+                text: "This popup auto-triggered after you clicked the button. In production, it would show automatically when the page loads.",
+                autoTrigger: true,
+                delay: 2000,
+                debugMode: true // Enable for demo
+            });
+            alert('Auto-popup will appear in 2 seconds...');
+        }
+
+        function showDebugMode() {
+            createPushPopup({
+                heading: "🧪 Debug Mode Active",
+                text: "This popup bypasses app and push status checks, perfect for testing in browsers!",
+                acceptText: "Test Accept",
+                declineText: "Test Decline", 
+                successMessage: "✅ Debug test successful! Notifications simulated as enabled.",
+                debugMode: true,
+                onAccept: () => {
+                    console.log('Debug mode: Simulating push acceptance...');
+                    alert('Debug mode: This would trigger the native push prompt in a MobiLoud app.');
+                }
+            }).show();
+        }
+
+        function showCustomPopup() {
+            createPushPopup({
+                heading: "🎁 Special Offer!",
+                text: "Be the first to know about exclusive deals, flash sales, and member-only discounts!",
+                acceptText: "Count Me In!",
+                declineText: "Skip This Time",
+                successMessage: "🎉 Awesome! You'll be first to know about our best deals.",
+                debugMode: true,
+                onAccept: () => {
+                    alert('Great choice! In a real app, you\'d now receive exclusive notifications.');
+                }
+            }).show();
+        }
+
+        function showSingleButton() {
+            createPushPopup({
+                heading: "Important Update",
+                text: "We've updated our privacy policy. Please review the changes to continue using our service.",
+                acceptText: "Review & Continue",
+                declineText: "", // Empty = no decline button
+                successMessage: "✅ Thank you for reviewing our updates!",
+                debugMode: true,
+                onAccept: () => {
+                    alert('Thank you! This demonstrates a popup with only one button.');
+                }
+            }).show();
+        }
+
+        function triggerManualPopup() {
+            // Create a popup that can be triggered by the button
+            const manualPopup = createPushPopup({
+                heading: "Manual Trigger",
+                text: "This popup was triggered by clicking the button. You can bind popups to any element!",
+                triggerElement: "#manual-trigger", // This button will trigger it
+                debugMode: true,
+                onAccept: () => {
+                    alert('This popup was manually triggered! Perfect for specific user actions.');
+                }
+            });
+            
+            // Since we just created it, show it immediately
+            manualPopup.show();
+        }
+
+        function showSessionLimitDemo() {
+            // Get current cookie data for display
+            const cookieName = 'ml_push_popup_tracking';
+            const cookieValue = document.cookie
+                .split('; ')
+                .find(row => row.startsWith(cookieName + '='));
+            
+            let currentData = { count: 0, firstShown: null };
+            if (cookieValue) {
+                try {
+                    currentData = JSON.parse(decodeURIComponent(cookieValue.split('=')[1]));
+                } catch (e) {}
+            }
+            
+            const popup = createPushPopup({
+                heading: "🔢 Session Limited Popup",
+                text: `This popup will only show 2 times within 5 days. Current count: ${currentData.count}/2`,
+                acceptText: "Got it!",
+                declineText: "Reset Counter",
+                successMessage: "✅ Session tracked! Check browser cookies.",
+                debugMode: true,
+                maxSessions: 2,
+                timeframeDays: 5,
+                onAccept: () => {
+                    alert(`Session recorded! This popup has been shown ${currentData.count + 1} time(s).`);
+                },
+                onDecline: () => {
+                    // Clear the cookie to reset the counter
+                    document.cookie = `${cookieName}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
+                    alert('Counter reset! The popup will now track from 0 again.');
+                }
+            });
+            
+            popup.show();
+        }
+
+        function showDarkModePopup() {
+            createPushPopup({
+                heading: "🌙 Dark Mode Enabled",
+                text: "This popup is using dark mode styling. Perfect for low-light environments and OLED screens!",
+                acceptText: "Enable Dark Notifications",
+                declineText: "Stay in Light Mode",
+                successMessage: "✨ Dark mode notifications enabled!",
+                debugMode: true,
+                darkMode: true, // Enable dark mode
+                onAccept: () => {
+                    alert('Dark mode popup accepted! The dark styling is manually controlled via the darkMode option.');
+                }
+            }).show();
+        }
+
+        // Log current environment info
+        console.log('Environment Info:');
+        console.log('User Agent:', navigator.userAgent);
+        console.log('Is MobiLoud App:', navigator.userAgent.toLowerCase().includes('canvas'));
+        console.log('Push Status Available:', !!(window.mobiloudAppInfo && typeof window.mobiloudAppInfo.pushSubscribed !== 'undefined'));
+        
+        if (navigator.userAgent.toLowerCase().includes('canvas')) {
+            console.log('✅ Running in MobiLoud app - production popup will work');
+        } else {
+            console.log('🧪 Running in browser - use debug mode for testing');
+        }
+    </script>
+</body>
+</html>
