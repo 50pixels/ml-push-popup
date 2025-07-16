@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Push Notification Popup</title>
     <link rel="stylesheet" href="style.css">
+    <script src="script.js"></script>
 </head>
 <body>
     <div class="container">
@@ -32,9 +33,6 @@
         <button class="btn btn-secondary" onclick="triggerManualPopup()" id="manual-trigger">⚡ Manual Trigger</button>
     </div>
 
-    <!-- Include your widget script -->
-    <script src="script.js"></script>
-
     <script>
         // Production Configuration for MobiLoud Apps
         // This will auto-trigger in MobiLoud apps when push is disabled
@@ -44,6 +42,7 @@
             acceptText: "Enable Notifications",
             declineText: "Maybe Later",
             successMessage: "🎉 Perfect! You're all set to receive notifications.",
+            enableAnalytics: true,
             autoTrigger: true,
             delay: 5000, // Show after 5 seconds
             allowedUrls: ["*"], // Show on all pages
@@ -69,6 +68,7 @@
             createPushPopup({
                 heading: "Welcome!",
                 text: "This popup auto-triggered after you clicked the button. In production, it would show automatically when the page loads.",
+                enableAnalytics: true,
                 autoTrigger: true,
                 delay: 2000,
                 debugMode: true // Enable for demo
@@ -83,6 +83,7 @@
                 acceptText: "Test Accept",
                 declineText: "Test Decline", 
                 successMessage: "✅ Debug test successful! Notifications simulated as enabled.",
+                enableAnalytics: true,
                 debugMode: true,
                 onAccept: () => {
                     console.log('Debug mode: Simulating push acceptance...');
@@ -98,6 +99,7 @@
                 acceptText: "Count Me In!",
                 declineText: "Skip This Time",
                 successMessage: "🎉 Awesome! You'll be first to know about our best deals.",
+                enableAnalytics: true,
                 debugMode: true,
                 onAccept: () => {
                     alert('Great choice! In a real app, you\'d now receive exclusive notifications.');
@@ -112,6 +114,7 @@
                 acceptText: "Review & Continue",
                 declineText: "", // Empty = no decline button
                 successMessage: "✅ Thank you for reviewing our updates!",
+                enableAnalytics: true,
                 debugMode: true,
                 onAccept: () => {
                     alert('Thank you! This demonstrates a popup with only one button.');
@@ -125,6 +128,7 @@
                 heading: "Manual Trigger",
                 text: "This popup was triggered by clicking the button. You can bind popups to any element!",
                 triggerElement: "#manual-trigger", // This button will trigger it
+                enableAnalytics: true,
                 debugMode: true,
                 onAccept: () => {
                     alert('This popup was manually triggered! Perfect for specific user actions.');
@@ -155,6 +159,7 @@
                 acceptText: "Got it!",
                 declineText: "Reset Counter",
                 successMessage: "✅ Session tracked! Check browser cookies.",
+                enableAnalytics: true,
                 debugMode: true,
                 maxSessions: 2,
                 timeframeDays: 5,
@@ -178,6 +183,7 @@
                 acceptText: "Enable Dark Notifications",
                 declineText: "Stay in Light Mode",
                 successMessage: "✨ Dark mode notifications enabled!",
+                enableAnalytics: true,
                 debugMode: true,
                 darkMode: true, // Enable dark mode
                 onAccept: () => {
@@ -206,8 +212,8 @@
                 acceptText: "Enable & Track",
                 declineText: "Decline & Track",
                 successMessage: "🎉 Success event tracked! Check console for details.",
-                debugMode: true,
                 enableAnalytics: true, // Enable analytics tracking
+                debugMode: true,
                 onAccept: () => {
                     console.log('✅ User accepted - this will trigger ml_popup_accepted event');
                     alert('Analytics tracking enabled! Check the console for event details.');
@@ -234,8 +240,8 @@
                 acceptText: "Track Accept",
                 declineText: "Track Decline",
                 successMessage: "✅ All events tracked! Check console for detailed logs.",
-                debugMode: true, // Enable debug mode for detailed console logging
                 enableAnalytics: true, // Enable analytics tracking
+                debugMode: true, // Enable debug mode for detailed console logging
                 onAccept: () => {
                     console.log('📊 Analytics Debug: Accept button clicked');
                 },

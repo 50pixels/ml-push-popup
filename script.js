@@ -1,19 +1,21 @@
 /**
- * Push Notification Popup Widget - v2.1
+ * Push Notification Popup Widget - v2.2
  * A minimal, modern popup for prompting push notification permissions
  * Integrated with MobiLoud app platform
  * 
  * Features:
+ * - Manual initialization (no auto-initialization)
  * - Auto-trigger session control (shows only once per page session)
  * - Manual dark mode control
  * - Real-time push status monitoring
  * - Cookie-based session limiting
- * - Google Analytics integration (optional)
+ * - Google Analytics integration (recommended)
  * 
  * Usage:
  * const popup = createPushPopup({
  *     heading: "Enable Notifications",
  *     text: "Stay updated with our latest news.",
+ *     enableAnalytics: true,
  *     autoTrigger: true,
  *     darkMode: false,
  *     debugMode: false // Set to true for browser testing
@@ -808,7 +810,3 @@ window.createPushPopup = function(options) {
     return new PushNotificationPopup(options);
 };
 
-// Auto-initialize if window.pushPopupConfig exists
-if (typeof window.pushPopupConfig !== 'undefined') {
-    window.pushPopup = new PushNotificationPopup(window.pushPopupConfig);
-}

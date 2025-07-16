@@ -16,10 +16,18 @@ A modern, iOS-style popup widget designed specifically for MobiLoud mobile apps 
 
 ## Installation
 
-Simply include the script from the CDN in your HTML:
+Include the script from the CDN in your HTML `<head>`:
 
 ```html
-<script src="https://cdn.jsdelivr.net/npm/@mobiloud/push-banner-widget/script.js"></script>
+<!DOCTYPE html>
+<html>
+<head>
+    <script src="https://cdn.jsdelivr.net/npm/@mobiloud/ml-push-popup/script.js"></script>
+</head>
+<body>
+    <!-- Your page content -->
+</body>
+</html>
 ```
 
 ## Basic Usage
@@ -29,6 +37,7 @@ Simply include the script from the CDN in your HTML:
 const popup = createPushPopup({
     heading: "Enable Notifications",
     text: "Stay updated with our latest news and updates.",
+    enableAnalytics: true,
     autoTrigger: true,
     delay: 3000 // Show after 3 seconds
 });
@@ -57,15 +66,105 @@ const popup = createPushPopup({
 | `onDecline` | function | console.log | Callback when user declines |
 | `onClose` | function | console.log | Callback when popup is closed |
 
+## Common Usage Patterns
+
+### 1. Auto-trigger on Page Load
+
+```html
+<!DOCTYPE html>
+<html>
+<head>
+    <script src="https://cdn.jsdelivr.net/npm/@mobiloud/ml-push-popup/script.js"></script>
+</head>
+<body>
+    <!-- Your page content -->
+    
+    <script>
+        // Automatically show popup after page loads
+        const popup = createPushPopup({
+            heading: "Enable Notifications",
+            text: "Stay updated with our latest news and updates.",
+            enableAnalytics: true,
+            autoTrigger: true,
+            delay: 3000 // Show after 3 seconds
+        });
+    </script>
+</body>
+</html>
+```
+
+### 2. Trigger on Button Click
+
+```html
+<!DOCTYPE html>
+<html>
+<head>
+    <script src="https://cdn.jsdelivr.net/npm/@mobiloud/ml-push-popup/script.js"></script>
+</head>
+<body>
+    <button id="enable-notifications">Enable Notifications</button>
+    
+    <script>
+        // Create popup but don't auto-trigger
+        const popup = createPushPopup({
+            heading: "Enable Notifications",
+            text: "Stay updated with our latest news and updates.",
+            enableAnalytics: true,
+            autoTrigger: false // Don't auto-trigger
+        });
+
+        // Show popup when button is clicked
+        document.getElementById('enable-notifications').addEventListener('click', () => {
+            popup.show();
+        });
+    </script>
+</body>
+</html>
+```
+
+### 3. Trigger on Specific User Action
+
+```html
+<!DOCTYPE html>
+<html>
+<head>
+    <script src="https://cdn.jsdelivr.net/npm/@mobiloud/ml-push-popup/script.js"></script>
+</head>
+<body>
+    <!-- Your page content -->
+    
+    <script>
+        // Create popup without auto-trigger
+        const popup = createPushPopup({
+            heading: "Enable Notifications",
+            text: "Stay updated with our latest news and updates.",
+            enableAnalytics: true,
+            autoTrigger: false
+        });
+
+        // Show popup when user scrolls down 50%
+        let hasShown = false;
+        window.addEventListener('scroll', () => {
+            if (!hasShown && window.scrollY > document.body.scrollHeight * 0.5) {
+                popup.show();
+                hasShown = true;
+            }
+        });
+    </script>
+</body>
+</html>
+```
+
 ## Google Analytics Integration
 
 ### Overview
 
-The widget includes optional Google Analytics event tracking to help you understand user interactions with your push notification popup. Analytics is **disabled by default** and must be explicitly enabled.
+The widget includes comprehensive Google Analytics event tracking to help you understand user interactions with your push notification popup. Analytics is **disabled by default** but **should be enabled** in all production implementations for proper tracking and optimization.
 
 ### Key Features
 
-- **Optional by Default**: Analytics tracking is disabled by default (`enableAnalytics: false`)
+- **Recommended for Production**: Analytics should be enabled in all production implementations
+- **Optional by Default**: Analytics tracking is disabled by default (`enableAnalytics: false`) but should be explicitly enabled
 - **Fail-Safe**: Works gracefully when Google Analytics is not available
 - **No Setup Required**: Works with existing Google Analytics installations
 - **Comprehensive Tracking**: Tracks all major user interactions
@@ -218,6 +317,7 @@ const popup = createPushPopup({
 const popup = createPushPopup({
     heading: "Don't Miss Out!",
     text: "Get instant updates about new content and special offers.",
+    enableAnalytics: true,
     autoTrigger: true,
     delay: 5000
 });
@@ -231,6 +331,7 @@ Show popup maximum 3 times in 30 days:
 const popup = createPushPopup({
     heading: "Enable Notifications",
     text: "Stay connected with important updates.",
+    enableAnalytics: true,
     maxSessions: 3,
     timeframeDays: 30,
     autoTrigger: true
@@ -243,6 +344,7 @@ const popup = createPushPopup({
 const popup = createPushPopup({
     heading: "Important Notice",
     text: "Enable notifications to continue using all features.",
+    enableAnalytics: true,
     acceptText: "Enable Now",
     declineText: "", // Empty string removes decline button
     autoTrigger: true
@@ -257,6 +359,7 @@ Show only on specific pages:
 const popup = createPushPopup({
     heading: "Product Updates",
     text: "Get notified about updates to this product.",
+    enableAnalytics: true,
     allowedUrls: [
         "/products/*",
         "/shop/*",
@@ -274,6 +377,7 @@ Bind to a button or link:
 const popup = createPushPopup({
     heading: "Enable Notifications",
     text: "Click the bell icon anytime to enable notifications.",
+    enableAnalytics: true,
     triggerElement: "#notification-bell",
     debugMode: false
 });
@@ -290,11 +394,10 @@ document.getElementById('my-button').addEventListener('click', () => {
 const popup = createPushPopup({
     heading: "Stay Updated",
     text: "Enable push notifications for the best experience.",
+    enableAnalytics: true,
     onAccept: () => {
-        // Track analytics event
-        gtag('event', 'push_notification_accepted', {
-            'event_category': 'engagement'
-        });
+        // Custom callback - analytics automatically tracked
+        console.log('User accepted notifications');
     },
     onDecline: () => {
         // Maybe try again later
@@ -313,6 +416,7 @@ const popup = createPushPopup({
 const popup = createPushPopup({
     heading: "Test Popup",
     text: "This works in any browser for testing.",
+    enableAnalytics: true,
     debugMode: true, // Bypasses MobiLoud app checks
     autoTrigger: true
 });
@@ -398,23 +502,6 @@ Remove popup and clean up resources:
 ```javascript
 popup.destroy();
 ```
-
-## Auto-initialization
-
-Set configuration before loading the script:
-
-```javascript
-window.pushPopupConfig = {
-    heading: "Enable Notifications",
-    autoTrigger: true,
-    delay: 5000
-};
-```
-```html
-<script src="https://cdn.jsdelivr.net/npm/@mobiloud/push-banner-widget/script.js"></script>
-```
-
-The popup will be available as `window.pushPopup`.
 
 ## Browser Compatibility
 
