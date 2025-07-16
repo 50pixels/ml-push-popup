@@ -11,14 +11,15 @@ A modern, iOS-style popup widget designed specifically for MobiLoud mobile apps 
 - 🎯 **URL Targeting**: Show popup only on specific pages
 - 🐛 **Debug Mode**: Test in browsers without app environment
 - 🌓 **Dark Mode Support**: Manual dark mode control (disabled by default)
+- 📊 **Analytics Integration**: Optional Google Analytics event tracking with fail-safe error handling
 - 🛡️ **CSS Isolation**: All classes prefixed with `ml-` to prevent conflicts
 
 ## Installation
 
-Simply include the `script.js` file in your HTML:
+Simply include the script from the CDN in your HTML:
 
 ```html
-<script src="script.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@mobiloud/push-banner-widget/script.js"></script>
 ```
 
 ## Basic Usage
@@ -38,11 +39,11 @@ const popup = createPushPopup({
 | Option | Type | Default | Description |
 |--------|------|---------|-------------|
 | `heading` | string | "Enable Notifications" | Main heading text |
-| `text` | string | "Stay updated with our latest news..." | Description text |
+| `text` | string | "Stay updated with our latest news and updates. We'll send you relevant notifications." | Description text |
 | `image` | string | null | Optional image URL (64x64px recommended) |
 | `acceptText` | string | "Enable" | Accept button text |
 | `declineText` | string | "Not Now" | Decline button text (empty string hides button) |
-| `successMessage` | string | "✅ Notifications enabled!..." | Message shown after enabling |
+| `successMessage` | string | "✅ Notifications enabled! You're all set." | Message shown after enabling |
 | `autoTrigger` | boolean | false | Automatically show popup on page load (once per session) |
 | `delay` | number | 0 | Delay in milliseconds before auto-showing |
 | `triggerElement` | string/Element | null | CSS selector or element to trigger popup |
@@ -410,7 +411,7 @@ window.pushPopupConfig = {
 };
 ```
 ```html
-<script src="script.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@mobiloud/push-banner-widget/script.js"></script>
 ```
 
 The popup will be available as `window.pushPopup`.

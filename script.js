@@ -1,5 +1,5 @@
 /**
- * Push Notification Popup Widget - v2.0
+ * Push Notification Popup Widget - v2.1
  * A minimal, modern popup for prompting push notification permissions
  * Integrated with MobiLoud app platform
  * 
@@ -8,6 +8,7 @@
  * - Manual dark mode control
  * - Real-time push status monitoring
  * - Cookie-based session limiting
+ * - Google Analytics integration (optional)
  * 
  * Usage:
  * const popup = createPushPopup({
