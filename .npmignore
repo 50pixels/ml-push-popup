@@ -1,0 +1,16 @@
+# Development files
+widget.html
+style.css
+CLAUDE.md
+.git/
+.gitignore
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db 

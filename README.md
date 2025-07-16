@@ -51,9 +51,163 @@ const popup = createPushPopup({
 | `maxSessions` | number | null | Maximum times to show popup |
 | `timeframeDays` | number | null | Timeframe for session limit (in days) |
 | `darkMode` | boolean | false | Enable dark mode styling |
+| `enableAnalytics` | boolean | false | Enable Google Analytics event tracking |
 | `onAccept` | function | console.log | Callback when user accepts |
 | `onDecline` | function | console.log | Callback when user declines |
 | `onClose` | function | console.log | Callback when popup is closed |
+
+## Google Analytics Integration
+
+### Overview
+
+The widget includes optional Google Analytics event tracking to help you understand user interactions with your push notification popup. Analytics is **disabled by default** and must be explicitly enabled.
+
+### Key Features
+
+- **Optional by Default**: Analytics tracking is disabled by default (`enableAnalytics: false`)
+- **Fail-Safe**: Works gracefully when Google Analytics is not available
+- **No Setup Required**: Works with existing Google Analytics installations
+- **Comprehensive Tracking**: Tracks all major user interactions
+- **Debug Mode**: Detailed console logging when `debugMode: true`
+
+### Events Tracked
+
+| Event Name | Trigger | Event Category | Description |
+|------------|---------|----------------|-------------|
+| `ml_popup_displayed` | Popup becomes visible | engagement | Tracks when popup is shown to user |
+| `ml_popup_accepted` | Accept button clicked | conversion | User clicks enable notifications |
+| `ml_popup_declined` | Decline button clicked | engagement | User clicks decline/not now |
+| `ml_popup_closed` | Close button/overlay clicked | engagement | User dismisses popup |
+| `ml_notifications_enabled` | Push notifications enabled | conversion | Notifications successfully enabled (value=1) |
+
+### Configuration
+
+```javascript
+const popup = createPushPopup({
+    heading: "Enable Notifications",
+    text: "Stay updated with our latest news.",
+    enableAnalytics: true,  // Enable Google Analytics tracking
+    debugMode: true,        // Optional: Enable detailed console logging
+    autoTrigger: true
+});
+```
+
+### Event Structure
+
+All events are sent to Google Analytics with this structure:
+
+```javascript
+gtag('event', 'ml_popup_displayed', {
+    event_category: 'engagement',        // 'engagement' or 'conversion'
+    event_label: 'push_notification_popup',
+    page_url: window.location.href,
+    page_title: document.title,
+    user_agent: navigator.userAgent,
+    timestamp: '2024-01-15T10:30:00.000Z',
+    // Additional event-specific parameters
+});
+```
+
+### Requirements
+
+- Google Analytics must be loaded on the page (`window.gtag` function)
+- No measurement ID configuration needed - uses existing GA setup
+- Works with GA4 and Universal Analytics
+
+### Debug Mode
+
+When `debugMode: true`, the widget provides detailed console logging:
+
+```javascript
+const popup = createPushPopup({
+    enableAnalytics: true,
+    debugMode: true,  // Enable detailed logging
+    // ... other options
+});
+```
+
+Debug mode logs include:
+- Successful event tracking with full parameters
+- Failed tracking attempts with error details
+- Google Analytics availability status
+- Event timing and trigger information
+
+### Error Handling
+
+The widget gracefully handles common scenarios:
+
+- **Google Analytics Not Available**: Events are silently skipped, no errors thrown
+- **Network Issues**: Individual tracking failures don't affect popup functionality
+- **Invalid Parameters**: Malformed event data is caught and logged in debug mode
+
+### Examples
+
+#### Basic Analytics Setup
+
+```javascript
+const popup = createPushPopup({
+    heading: "Enable Notifications",
+    text: "Stay updated with our latest news.",
+    enableAnalytics: true,
+    autoTrigger: true,
+    onAccept: () => {
+        console.log('User accepted notifications');
+        // ml_popup_accepted event automatically tracked
+    }
+});
+```
+
+#### Debug Mode with Analytics
+
+```javascript
+const popup = createPushPopup({
+    heading: "Debug Analytics",
+    text: "Check console for detailed event information.",
+    enableAnalytics: true,
+    debugMode: true,  // Shows detailed console logs
+    autoTrigger: true
+});
+```
+
+#### Analytics with Custom Callbacks
+
+```javascript
+const popup = createPushPopup({
+    heading: "Enable Notifications",
+    text: "Stay updated with our latest news.",
+    enableAnalytics: true,
+    onAccept: () => {
+        // Your custom logic here
+        console.log('Custom accept handler');
+        // ml_popup_accepted event automatically tracked
+    },
+    onDecline: () => {
+        // Your custom logic here
+        console.log('Custom decline handler');
+        // ml_popup_declined event automatically tracked
+    }
+});
+```
+
+### Testing Analytics
+
+1. **Enable Debug Mode**: Set `debugMode: true` to see detailed console logs
+2. **Check Console**: Look for `[PushPopup Analytics]` log messages
+3. **Verify GA**: Check Google Analytics Real-Time reports for events
+4. **Test Scenarios**: Try all interaction paths (accept, decline, close)
+
+### Troubleshooting
+
+**Events not appearing in GA?**
+- Verify `window.gtag` function is available
+- Check console for `[PushPopup Analytics]` error messages
+- Ensure `enableAnalytics: true` is set
+- Confirm Google Analytics is properly configured
+
+**Debug mode not showing logs?**
+- Verify `debugMode: true` is set in options
+- Check browser console for filtered messages
+- Ensure popup is actually being triggered
 
 ## Examples
 

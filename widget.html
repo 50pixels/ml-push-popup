@@ -27,6 +27,8 @@
         <button class="btn" onclick="showSingleButton()">📝 Single Button (No Decline)</button>
         <button class="btn" onclick="showSessionLimitDemo()">🔢 Session Limit Demo (Max 2 times in 5 days)</button>
         <button class="btn" onclick="showDarkModePopup()">🌙 Dark Mode Popup</button>
+        <button class="btn" onclick="showAnalyticsPopup()">📊 Analytics Enabled Popup</button>
+        <button class="btn" onclick="showAnalyticsDebugPopup()">🔍 Analytics Debug Mode</button>
         <button class="btn btn-secondary" onclick="triggerManualPopup()" id="manual-trigger">⚡ Manual Trigger</button>
     </div>
 
@@ -195,6 +197,59 @@
         } else {
             console.log('🧪 Running in browser - use debug mode for testing');
         }
+
+        // Analytics Demo Functions
+        function showAnalyticsPopup() {
+            createPushPopup({
+                heading: "📊 Analytics Enabled",
+                text: "This popup has Google Analytics tracking enabled. Check your browser's developer console for tracking events.",
+                acceptText: "Enable & Track",
+                declineText: "Decline & Track",
+                successMessage: "🎉 Success event tracked! Check console for details.",
+                debugMode: true,
+                enableAnalytics: true, // Enable analytics tracking
+                onAccept: () => {
+                    console.log('✅ User accepted - this will trigger ml_popup_accepted event');
+                    alert('Analytics tracking enabled! Check the console for event details.');
+                },
+                onDecline: () => {
+                    console.log('❌ User declined - this will trigger ml_popup_declined event');
+                    alert('Decline tracked! Check console for event details.');
+                }
+            }).show();
+        }
+
+        function showAnalyticsDebugPopup() {
+            // Add a mock gtag function for demo purposes
+            if (typeof window.gtag === 'undefined') {
+                window.gtag = function(type, event, params) {
+                    console.log(`🔍 [Mock GA] ${type}: ${event}`, params);
+                };
+                console.log('🔍 Mock Google Analytics (gtag) function created for demo');
+            }
+            
+            createPushPopup({
+                heading: "🔍 Analytics Debug Mode",
+                text: "This popup demonstrates detailed analytics logging. All events and parameters will be logged to console.",
+                acceptText: "Track Accept",
+                declineText: "Track Decline",
+                successMessage: "✅ All events tracked! Check console for detailed logs.",
+                debugMode: true, // Enable debug mode for detailed console logging
+                enableAnalytics: true, // Enable analytics tracking
+                onAccept: () => {
+                    console.log('📊 Analytics Debug: Accept button clicked');
+                },
+                onDecline: () => {
+                    console.log('📊 Analytics Debug: Decline button clicked');
+                }
+            }).show();
+        }
+
+        // Add note about analytics to console
+        console.log('📊 Analytics Demo Available:');
+        console.log('- Click "Analytics Enabled Popup" to see basic tracking');
+        console.log('- Click "Analytics Debug Mode" to see detailed console logging');
+        console.log('- Events tracked: ml_popup_displayed, ml_popup_accepted, ml_popup_declined, ml_popup_closed, ml_notifications_enabled');
     </script>
 </body>
 </html>

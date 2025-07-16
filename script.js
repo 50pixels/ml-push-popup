@@ -41,7 +41,8 @@ class PushNotificationPopup {
             debugMode: options.debugMode || false,
             maxSessions: options.maxSessions || null,
             timeframeDays: options.timeframeDays || null,
-            darkMode: options.darkMode || false
+            darkMode: options.darkMode || false,
+            enableAnalytics: options.enableAnalytics || false
         };
 
         this.isVisible = false;
@@ -56,6 +57,53 @@ class PushNotificationPopup {
         this.hasAutoTriggeredThisSession = false;
 
         this.init();
+    }
+
+    trackEvent(eventName, customParameters = {}) {
+        if (!this.options.enableAnalytics) {
+            return;
+        }
+
+        try {
+            // Check if gtag is available
+            if (typeof window.gtag !== 'function') {
+                if (this.options.debugMode) {
+                    console.warn('[PushPopup Analytics] Google Analytics (gtag) not available - event not tracked:', eventName);
+                }
+                return;
+            }
+
+            // Ensure event name has ml_ prefix
+            const prefixedEventName = eventName.startsWith('ml_') ? eventName : `ml_${eventName}`;
+
+            // Standard event parameters
+            const standardParameters = {
+                event_category: 'engagement',
+                event_label: 'push_notification_popup',
+                page_url: window.location.href,
+                page_title: document.title,
+                user_agent: navigator.userAgent,
+                timestamp: new Date().toISOString()
+            };
+
+            // Merge custom parameters with standard ones
+            const eventParameters = { ...standardParameters, ...customParameters };
+
+            // Track the event
+            window.gtag('event', prefixedEventName, eventParameters);
+
+            if (this.options.debugMode) {
+                console.log('[PushPopup Analytics] Event tracked:', {
+                    event: prefixedEventName,
+                    parameters: eventParameters
+                });
+            }
+
+        } catch (error) {
+            if (this.options.debugMode) {
+                console.error('[PushPopup Analytics] Error tracking event:', eventName, error);
+            }
+        }
     }
 
     init() {
@@ -241,6 +289,12 @@ class PushNotificationPopup {
         const acceptBtn = this.popup.querySelector('.ml-push-popup-accept');
 
         if (isEnabled && buttonsContainer && acceptBtn) {
+            // Track that notifications were successfully enabled
+            this.trackEvent('ml_notifications_enabled', {
+                event_category: 'conversion',
+                value: 1
+            });
+            
             // Replace buttons with success message
             buttonsContainer.innerHTML = `
                 <div class="ml-push-popup-success">
@@ -513,7 +567,7 @@ class PushNotificationPopup {
         const closeBtn = document.createElement('button');
         closeBtn.className = 'ml-push-popup-close';
         closeBtn.innerHTML = '×';
-        closeBtn.addEventListener('click', () => this.hide());
+        closeBtn.addEventListener('click', () => this.hide(true));
 
         // Create content container
         const content = document.createElement('div');
@@ -547,6 +601,11 @@ class PushNotificationPopup {
         acceptBtn.className = 'ml-push-popup-button ml-push-popup-accept';
         acceptBtn.textContent = this.options.acceptText;
         acceptBtn.addEventListener('click', () => {
+            // Track accept action before triggering push prompt
+            this.trackEvent('ml_popup_accepted', {
+                event_category: 'conversion'
+            });
+            
             this.triggerPushPrompt();
         });
 
@@ -557,6 +616,11 @@ class PushNotificationPopup {
             declineBtn.className = 'ml-push-popup-button ml-push-popup-decline';
             declineBtn.textContent = this.options.declineText;
             declineBtn.addEventListener('click', () => {
+                // Track decline action
+                this.trackEvent('ml_popup_declined', {
+                    event_category: 'engagement'
+                });
+                
                 this.options.onDecline();
                 this.hide();
             });
@@ -620,14 +684,14 @@ class PushNotificationPopup {
         // Store handler references for cleanup
         this._onOverlayClick = (e) => {
             if (e.target === this.overlay) {
-                this.hide();
+                this.hide(true);
             }
         };
         this.overlay.addEventListener('click', this._onOverlayClick);
 
         this._onKeyDown = (e) => {
             if (e.key === 'Escape' && this.isVisible) {
-                this.hide();
+                this.hide(true);
             }
         };
         document.addEventListener('keydown', this._onKeyDown);
@@ -656,6 +720,12 @@ class PushNotificationPopup {
         requestAnimationFrame(() => {
             this.overlay.classList.add('ml-visible');
             
+            // Track that popup is displayed
+            this.trackEvent('ml_popup_displayed', {
+                event_category: 'engagement',
+                trigger_type: isAutoTrigger ? 'auto' : 'manual'
+            });
+            
             // Then show popup with slight delay
             setTimeout(() => {
                 this.popup.classList.add('ml-visible');
@@ -666,10 +736,18 @@ class PushNotificationPopup {
         document.body.style.overflow = 'hidden';
     }
 
-    hide() {
+    hide(userInitiated = false) {
         if (!this.isVisible) return;
 
         this.isVisible = false;
+        
+        // Track user-initiated close events
+        if (userInitiated) {
+            this.trackEvent('ml_popup_closed', {
+                event_category: 'engagement',
+                close_method: 'user_action'
+            });
+        }
         
         // Hide popup first
         this.popup.classList.remove('ml-visible');
