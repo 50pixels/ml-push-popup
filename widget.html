@@ -31,6 +31,8 @@
         <button class="btn" onclick="showAnalyticsPopup()">📊 Analytics Enabled Popup</button>
         <button class="btn" onclick="showAnalyticsDebugPopup()">🔍 Analytics Debug Mode</button>
         <button class="btn btn-secondary" onclick="triggerManualPopup()" id="manual-trigger">⚡ Manual Trigger</button>
+        <button class="btn" onclick="testMultiplePopups()">🔒 Test Multiple Popups (Should Block)</button>
+        <button class="btn" onclick="testButtonAlignment()">🎯 Test Button Text Alignment</button>
     </div>
 
     <script>
@@ -256,6 +258,65 @@
         console.log('- Click "Analytics Enabled Popup" to see basic tracking');
         console.log('- Click "Analytics Debug Mode" to see detailed console logging');
         console.log('- Events tracked: ml_popup_displayed, ml_popup_accepted, ml_popup_declined, ml_popup_closed, ml_notifications_enabled');
+
+        // Test function for multiple popups
+        function testMultiplePopups() {
+            console.log('🔒 Testing multiple popup prevention...');
+            
+            // Create first popup
+            const popup1 = createPushPopup({
+                heading: "First Popup",
+                text: "This is the first popup. It should show normally.",
+                debugMode: true
+            });
+            
+            // Show first popup
+            popup1.show();
+            console.log('✅ First popup shown');
+            
+            // Try to create and show second popup immediately
+            const popup2 = createPushPopup({
+                heading: "Second Popup",
+                text: "This is the second popup. It should be blocked!",
+                debugMode: true
+            });
+            
+            popup2.show();
+            console.log('❌ Second popup attempt - should be blocked');
+            
+            // Try to show third popup after a delay
+            setTimeout(() => {
+                const popup3 = createPushPopup({
+                    heading: "Third Popup",
+                    text: "This is the third popup. It should also be blocked!",
+                    debugMode: true
+                });
+                
+                popup3.show();
+                console.log('❌ Third popup attempt - should also be blocked');
+            }, 1000);
+            
+            console.log('🔍 Check console for blocking messages. Only the first popup should be visible.');
+        }
+
+        // Test function for button alignment
+        function testButtonAlignment() {
+            console.log('🎯 Testing button text alignment...');
+            
+            createPushPopup({
+                heading: "Button Alignment Test",
+                text: "Check if the button text is properly centered vertically. The buttons should have text aligned to the middle, not the bottom.",
+                acceptText: "Text Should Be Centered",
+                declineText: "This Is Also Centered",
+                debugMode: true,
+                onAccept: () => {
+                    console.log('✅ Button text alignment test - Accept button clicked');
+                },
+                onDecline: () => {
+                    console.log('✅ Button text alignment test - Decline button clicked');
+                }
+            }).show();
+        }
     </script>
 </body>
 </html>

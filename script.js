@@ -25,6 +25,9 @@
 class PushNotificationPopup {
     // Track style usage count
     static styleUsageCount = 0;
+    
+    // Track if any popup is currently visible globally
+    static currentlyVisible = false;
 
     constructor(options = {}) {
         this.options = {
@@ -470,7 +473,14 @@ class PushNotificationPopup {
             }
 
             .ml-push-popup-button {
-                padding: 16px 24px;
+                /* Flexbox centering for reliable text alignment */
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                
+                /* Fixed height instead of padding-only approach */
+                height: 56px;
+                padding: 0 24px;
                 border-radius: 12px;
                 font-size: 16px;
                 font-weight: 600;
@@ -478,6 +488,18 @@ class PushNotificationPopup {
                 cursor: pointer;
                 transition: all 0.2s ease;
                 font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                
+                /* CSS reset properties to override conflicts */
+                line-height: 1;
+                vertical-align: middle;
+                text-align: center;
+                box-sizing: border-box;
+                
+                /* Mobile-specific webkit properties */
+                -webkit-appearance: none;
+                -webkit-tap-highlight-color: transparent;
+                -webkit-user-select: none;
+                user-select: none;
             }
 
             .ml-push-popup-accept {
@@ -703,6 +725,12 @@ class PushNotificationPopup {
     show(isAutoTrigger = false) {
         if (this.isVisible) return;
         
+        // Check if another popup is already visible globally
+        if (PushNotificationPopup.currentlyVisible) {
+            console.log('[PushPopup] Another popup is already visible - blocking this popup');
+            return;
+        }
+        
         // Check if this is an auto-trigger and we've already auto-triggered this session
         if (isAutoTrigger && this.hasAutoTriggeredThisSession) {
             console.log('[PushPopup] Auto-trigger blocked - already shown once this session');
@@ -715,6 +743,9 @@ class PushNotificationPopup {
         }
 
         this.isVisible = true;
+        
+        // Set global state to indicate a popup is now visible
+        PushNotificationPopup.currentlyVisible = true;
         
         // Increment session count when showing
         this.incrementSessionCount();
@@ -744,6 +775,9 @@ class PushNotificationPopup {
 
         this.isVisible = false;
         
+        // Clear global state to allow other popups to show
+        PushNotificationPopup.currentlyVisible = false;
+        
         // Track user-initiated close events
         if (userInitiated) {
             this.trackEvent('ml_popup_closed', {
@@ -770,6 +804,12 @@ class PushNotificationPopup {
     }
 
     destroy() {
+        // Clear global state if this popup was visible
+        if (this.isVisible) {
+            PushNotificationPopup.currentlyVisible = false;
+            this.isVisible = false;
+        }
+        
         // Clean up status monitoring
         if (this.statusCheckInterval) {
             clearInterval(this.statusCheckInterval);
