@@ -33,6 +33,7 @@
         <button class="btn btn-secondary" onclick="triggerManualPopup()" id="manual-trigger">⚡ Manual Trigger</button>
         <button class="btn" onclick="testMultiplePopups()">🔒 Test Multiple Popups (Should Block)</button>
         <button class="btn" onclick="testButtonAlignment()">🎯 Test Button Text Alignment</button>
+        <button class="btn" onclick="testCloseButton()">❌ Test Close Button</button>
     </div>
 
     <script>
@@ -314,6 +315,37 @@
                 },
                 onDecline: () => {
                     console.log('✅ Button text alignment test - Decline button clicked');
+                }
+            }).show();
+        }
+
+        // Test function for close button
+        function testCloseButton() {
+            console.log('❌ Testing close button...');
+            
+            createPushPopup({
+                heading: "Close Button Test",
+                text: "Check the close button in the top-right corner. It should be perfectly round with a centered × symbol. Try both light and dark modes.",
+                acceptText: "Switch to Dark Mode",
+                declineText: "Keep Light Mode",
+                debugMode: true,
+                onAccept: () => {
+                    console.log('✅ Testing close button in dark mode...');
+                    // Show dark mode popup
+                    createPushPopup({
+                        heading: "Dark Mode Close Button",
+                        text: "Now check the close button in dark mode. It should still be perfectly round with a centered × symbol.",
+                        acceptText: "Close Button Looks Good",
+                        declineText: "Back to Light Mode",
+                        darkMode: true,
+                        debugMode: true,
+                        onAccept: () => {
+                            console.log('✅ Close button test completed');
+                        }
+                    }).show();
+                },
+                onDecline: () => {
+                    console.log('✅ Close button test - staying in light mode');
                 }
             }).show();
         }

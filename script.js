@@ -403,6 +403,8 @@ class PushNotificationPopup {
                 right: 16px;
                 width: 32px;
                 height: 32px;
+                min-width: 32px; /* Ensure minimum width for perfect circle */
+                min-height: 32px; /* Ensure minimum height for perfect circle */
                 border: none;
                 background: #f5f5f5;
                 border-radius: 50%;
@@ -413,6 +415,14 @@ class PushNotificationPopup {
                 font-size: 18px;
                 color: #666;
                 transition: all 0.2s ease;
+                box-sizing: border-box;
+                padding: 0;
+                line-height: 1;
+                /* Mobile-specific properties */
+                -webkit-appearance: none;
+                -webkit-tap-highlight-color: transparent;
+                -webkit-user-select: none;
+                user-select: none;
             }
             
             .ml-dark-mode .ml-push-popup-close {
@@ -591,7 +601,7 @@ class PushNotificationPopup {
         // Create close button
         const closeBtn = document.createElement('button');
         closeBtn.className = 'ml-push-popup-close';
-        closeBtn.innerHTML = '×';
+        closeBtn.innerHTML = '&times;'; // Use HTML entity for more reliable display
         closeBtn.addEventListener('click', () => this.hide(true));
 
         // Create content container
