@@ -152,9 +152,45 @@ class PushNotificationPopup {
 
     isPushEnabled() {
         try {
-            // Check MobiLoud push notification status
-            return !!(window.mobiloudAppInfo && window.mobiloudAppInfo.pushSubscribed);
+            // Check if mobiloudAppInfo exists
+            if (!window.mobiloudAppInfo) {
+                if (this.options.debugMode) {
+                    console.log('[PushPopup] mobiloudAppInfo not available');
+                }
+                return false;
+            }
+            
+            const pushSubscribed = window.mobiloudAppInfo.pushSubscribed;
+            
+            if (this.options.debugMode) {
+                console.log('[PushPopup] pushSubscribed value:', pushSubscribed, 'type:', typeof pushSubscribed);
+            }
+            
+            // Handle both boolean and string values
+            if (typeof pushSubscribed === 'boolean') {
+                if (this.options.debugMode) {
+                    console.log('[PushPopup] Push status (boolean):', pushSubscribed);
+                }
+                return pushSubscribed;
+            } else if (typeof pushSubscribed === 'string') {
+                // Convert string to boolean (handle "true"/"false" strings)
+                const result = pushSubscribed.toLowerCase() === 'true';
+                if (this.options.debugMode) {
+                    console.log('[PushPopup] Push status (string converted):', result);
+                }
+                return result;
+            }
+            
+            // If it's neither boolean nor string, treat as disabled
+            if (this.options.debugMode) {
+                console.log('[PushPopup] Push status unknown type, treating as disabled');
+            }
+            return false;
+            
         } catch (e) {
+            if (this.options.debugMode) {
+                console.log('[PushPopup] Error checking push status:', e);
+            }
             // If can't determine status, assume disabled
             return false;
         }

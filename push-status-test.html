@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Push Status Bug Fix Test</title>
+    <script src="script.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background: #f0f0f0;
+        }
+        
+        .test-section {
+            margin: 20px 0;
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+        }
+        
+        .test-result {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 4px;
+            font-family: monospace;
+        }
+        
+        .pass {
+            background: #e8f5e9;
+            border: 1px solid #4caf50;
+            color: #2e7d32;
+        }
+        
+        .fail {
+            background: #ffebee;
+            border: 1px solid #f44336;
+            color: #c62828;
+        }
+        
+        .test-button {
+            background: #007AFF;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 10px 0;
+        }
+        
+        .test-button:hover {
+            background: #0056CC;
+        }
+    </style>
+</head>
+<body>
+    <h1>🐛 Push Status Bug Fix Test</h1>
+    
+    <div class="test-section">
+        <h3>Problem Description</h3>
+        <p>The original <code>isPushEnabled()</code> method incorrectly treated string <code>"false"</code> as truthy, preventing the popup from showing when push notifications were disabled.</p>
+        <p><strong>Bug:</strong> <code>!!(window.mobiloudAppInfo.pushSubscribed)</code> converts string <code>"false"</code> to <code>true</code></p>
+        <p><strong>Fix:</strong> Properly parse string values to handle both boolean and string inputs</p>
+    </div>
+    
+    <div class="test-section">
+        <h3>Automated Test Suite</h3>
+        <button class="test-button" onclick="runTests()">Run All Tests</button>
+        <div id="test-results"></div>
+    </div>
+    
+    <div class="test-section">
+        <h3>Interactive Test</h3>
+        <button class="test-button" onclick="testStringFalse()">Test String "false" (Should Show Popup)</button>
+        <button class="test-button" onclick="testStringTrue()">Test String "true" (Should NOT Show Popup)</button>
+        <button class="test-button" onclick="testBooleanFalse()">Test Boolean false (Should Show Popup)</button>
+        <button class="test-button" onclick="testBooleanTrue()">Test Boolean true (Should NOT Show Popup)</button>
+    </div>
+    
+    <script>
+        function runTests() {
+            const testCases = [
+                { value: true, expected: true, description: 'Boolean true' },
+                { value: false, expected: false, description: 'Boolean false' },
+                { value: 'true', expected: true, description: 'String "true"' },
+                { value: 'false', expected: false, description: 'String "false"' },
+                { value: 'TRUE', expected: true, description: 'String "TRUE"' },
+                { value: 'FALSE', expected: false, description: 'String "FALSE"' },
+                { value: 'invalid', expected: false, description: 'Invalid string' },
+                { value: 123, expected: false, description: 'Number' },
+                { value: null, expected: false, description: 'Null' },
+                { value: undefined, expected: false, description: 'Undefined' }
+            ];
+            
+            const resultsDiv = document.getElementById('test-results');
+            resultsDiv.innerHTML = '';
+            
+            // Store original value
+            const originalMobiloudAppInfo = window.mobiloudAppInfo;
+            
+            let passCount = 0;
+            let totalCount = testCases.length;
+            
+            testCases.forEach(test => {
+                // Set up mock mobiloudAppInfo
+                window.mobiloudAppInfo = {
+                    pushSubscribed: test.value
+                };
+                
+                // Create a test popup to call isPushEnabled
+                const testPopup = createPushPopup({
+                    heading: 'Test',
+                    text: 'Test',
+                    debugMode: true
+                });
+                
+                const result = testPopup.isPushEnabled();
+                const passed = result === test.expected;
+                
+                if (passed) passCount++;
+                
+                const resultDiv = document.createElement('div');
+                resultDiv.className = `test-result ${passed ? 'pass' : 'fail'}`;
+                resultDiv.innerHTML = `
+                    ${passed ? '✅' : '❌'} ${test.description}: 
+                    ${JSON.stringify(test.value)} → ${result} 
+                    (expected: ${test.expected})
+                `;
+                resultsDiv.appendChild(resultDiv);
+                
+                // Clean up
+                testPopup.destroy();
+            });
+            
+            // Restore original value
+            window.mobiloudAppInfo = originalMobiloudAppInfo;
+            
+            // Summary
+            const summaryDiv = document.createElement('div');
+            summaryDiv.className = `test-result ${passCount === totalCount ? 'pass' : 'fail'}`;
+            summaryDiv.innerHTML = `<strong>Summary: ${passCount}/${totalCount} tests passed</strong>`;
+            resultsDiv.appendChild(summaryDiv);
+            
+            console.log(`Push status bug fix test: ${passCount}/${totalCount} tests passed`);
+        }
+        
+        function testStringFalse() {
+            const original = window.mobiloudAppInfo;
+            window.mobiloudAppInfo = { pushSubscribed: 'false' };
+            
+            const popup = createPushPopup({
+                heading: 'String "false" Test',
+                text: 'This popup should show because pushSubscribed is string "false" (disabled). Before the fix, this would incorrectly be treated as enabled.',
+                acceptText: 'Bug Fixed!',
+                declineText: 'Close',
+                debugMode: true,
+                onAccept: () => {
+                    console.log('✅ String "false" test passed');
+                    window.mobiloudAppInfo = original;
+                },
+                onDecline: () => {
+                    console.log('Test completed');
+                    window.mobiloudAppInfo = original;
+                }
+            });
+            
+            // This should show the popup because string "false" should be treated as disabled
+            if (popup.shouldShowPopup()) {
+                popup.show();
+                console.log('✅ Popup shown correctly for string "false"');
+            } else {
+                console.log('❌ Popup not shown - bug still exists!');
+                window.mobiloudAppInfo = original;
+            }
+        }
+        
+        function testStringTrue() {
+            const original = window.mobiloudAppInfo;
+            window.mobiloudAppInfo = { pushSubscribed: 'true' };
+            
+            const popup = createPushPopup({
+                heading: 'String "true" Test',
+                text: 'This popup should NOT show because pushSubscribed is string "true" (enabled).',
+                debugMode: true
+            });
+            
+            if (popup.shouldShowPopup()) {
+                popup.show();
+                console.log('❌ Popup shown incorrectly for string "true"');
+            } else {
+                console.log('✅ Popup correctly NOT shown for string "true"');
+                alert('✅ Test passed: Popup correctly NOT shown for string "true"');
+            }
+            
+            window.mobiloudAppInfo = original;
+        }
+        
+        function testBooleanFalse() {
+            const original = window.mobiloudAppInfo;
+            window.mobiloudAppInfo = { pushSubscribed: false };
+            
+            const popup = createPushPopup({
+                heading: 'Boolean false Test',
+                text: 'This popup should show because pushSubscribed is boolean false (disabled).',
+                acceptText: 'Test Passed',
+                declineText: 'Close',
+                debugMode: true,
+                onAccept: () => {
+                    console.log('✅ Boolean false test passed');
+                    window.mobiloudAppInfo = original;
+                },
+                onDecline: () => {
+                    console.log('Test completed');
+                    window.mobiloudAppInfo = original;
+                }
+            });
+            
+            if (popup.shouldShowPopup()) {
+                popup.show();
+                console.log('✅ Popup shown correctly for boolean false');
+            } else {
+                console.log('❌ Popup not shown - unexpected behavior!');
+                window.mobiloudAppInfo = original;
+            }
+        }
+        
+        function testBooleanTrue() {
+            const original = window.mobiloudAppInfo;
+            window.mobiloudAppInfo = { pushSubscribed: true };
+            
+            const popup = createPushPopup({
+                heading: 'Boolean true Test',
+                text: 'This popup should NOT show because pushSubscribed is boolean true (enabled).',
+                debugMode: true
+            });
+            
+            if (popup.shouldShowPopup()) {
+                popup.show();
+                console.log('❌ Popup shown incorrectly for boolean true');
+            } else {
+                console.log('✅ Popup correctly NOT shown for boolean true');
+                alert('✅ Test passed: Popup correctly NOT shown for boolean true');
+            }
+            
+            window.mobiloudAppInfo = original;
+        }
+        
+        console.log('Push status bug fix test page loaded');
+        console.log('Click "Run All Tests" to verify the fix works correctly');
+    </script>
+</body>
+</html>
