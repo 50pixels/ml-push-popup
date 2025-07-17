@@ -34,6 +34,7 @@
         <button class="btn" onclick="testMultiplePopups()">🔒 Test Multiple Popups (Should Block)</button>
         <button class="btn" onclick="testButtonAlignment()">🎯 Test Button Text Alignment</button>
         <button class="btn" onclick="testCloseButton()">❌ Test Close Button</button>
+        <button class="btn" onclick="testShadowBehavior()">👥 Test Shadow Behavior</button>
     </div>
 
     <script>
@@ -348,6 +349,41 @@
                     console.log('✅ Close button test - staying in light mode');
                 }
             }).show();
+        }
+
+        // Test function for shadow behavior
+        function testShadowBehavior() {
+            console.log('👥 Testing shadow behavior...');
+            
+            // Create a popup to test shadow
+            const popup = createPushPopup({
+                heading: "Shadow Behavior Test",
+                text: "Check the bottom of the page - there should be NO shadow visible when this popup is hidden. The shadow should only appear when the popup is shown.",
+                acceptText: "Hide and Check",
+                declineText: "Keep Testing",
+                debugMode: true,
+                onAccept: () => {
+                    console.log('✅ Popup hidden - check bottom of page for shadow');
+                    console.log('👀 Look carefully at the bottom edge - no shadow should be visible');
+                },
+                onDecline: () => {
+                    console.log('✅ Popup still visible - shadow should be present');
+                }
+            });
+            
+            // Show the popup
+            popup.show();
+            
+            // Also test programmatic hide/show
+            setTimeout(() => {
+                console.log('🔄 Auto-hiding popup in 3 seconds to test shadow...');
+                popup.hide();
+                
+                setTimeout(() => {
+                    console.log('🔄 Auto-showing popup again to test shadow...');
+                    popup.show();
+                }, 2000);
+            }, 3000);
         }
     </script>
 </body>

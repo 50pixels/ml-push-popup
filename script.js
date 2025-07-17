@@ -381,9 +381,9 @@ class PushNotificationPopup {
                 background: white;
                 border-radius: 20px 20px 0 0;
                 padding: 24px;
-                box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.15);
+                box-shadow: none; /* No shadow when hidden */
                 transform: translateY(100%);
-                transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+                transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.4s cubic-bezier(0.4, 0, 0.2, 1);
                 max-width: 500px;
                 margin: 0 auto;
                 z-index: 10001;
@@ -395,6 +395,7 @@ class PushNotificationPopup {
 
             .ml-push-popup.ml-visible {
                 transform: translateY(0);
+                box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.15); /* Shadow only when visible */
             }
 
             .ml-push-popup-close {
