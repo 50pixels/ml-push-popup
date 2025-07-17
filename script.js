@@ -772,6 +772,15 @@ class PushNotificationPopup {
     show(isAutoTrigger = false) {
         if (this.isVisible) return;
         
+        // Check if popup was properly initialized (DOM elements exist)
+        if (!this.popup || !this.overlay) {
+            if (this.options.debugMode) {
+                console.warn('[PushPopup] Cannot show popup - not properly initialized (DOM elements missing)');
+            }
+            console.error('[PushPopup] Popup not initialized - show() called but DOM elements do not exist');
+            return;
+        }
+        
         // Check if another popup is already visible globally
         if (PushNotificationPopup.currentlyVisible) {
             console.log('[PushPopup] Another popup is already visible - blocking this popup');
@@ -833,17 +842,24 @@ class PushNotificationPopup {
             });
         }
         
-        // Hide popup first
-        this.popup.classList.remove('ml-visible');
+        // Only manipulate DOM if elements exist
+        if (this.popup) {
+            this.popup.classList.remove('ml-visible');
+        }
         
-        // Then hide overlay
-        setTimeout(() => {
-            this.overlay.classList.remove('ml-visible');
-        }, 200);
+        // Only manipulate overlay if it exists
+        if (this.overlay) {
+            setTimeout(() => {
+                this.overlay.classList.remove('ml-visible');
+            }, 200);
+        }
 
-        // Restore body scroll
+        // Always restore body scroll (critical for fixing the bug)
         setTimeout(() => {
             document.body.style.overflow = '';
+            if (this.options.debugMode) {
+                console.log('[PushPopup] Body scroll restored in hide()');
+            }
         }, 300);
 
         // Call onClose callback
@@ -855,6 +871,13 @@ class PushNotificationPopup {
         if (this.isVisible) {
             PushNotificationPopup.currentlyVisible = false;
             this.isVisible = false;
+        }
+        
+        // Always restore body scroll as a safety measure
+        // This prevents the bug where body scroll gets stuck disabled
+        document.body.style.overflow = '';
+        if (this.options.debugMode) {
+            console.log('[PushPopup] Body scroll restored in destroy() as safety measure');
         }
         
         // Clean up status monitoring

@@ -36,6 +36,7 @@
         <button class="btn" onclick="testCloseButton()">❌ Test Close Button</button>
         <button class="btn" onclick="testShadowBehavior()">👥 Test Shadow Behavior</button>
         <button class="btn" onclick="testPushStatusBug()">🐛 Test Push Status Bug Fix</button>
+        <button class="btn" onclick="testProductionScrollBug()">📱 Test Production Scroll Bug</button>
     </div>
 
     <script>
@@ -457,6 +458,69 @@
                     window.mobiloudAppInfo = originalMobiloudAppInfo;
                 }
             }).show();
+        }
+
+        // Test function for production scroll bug
+        function testProductionScrollBug() {
+            console.log('📱 Testing production scroll bug...');
+            
+            // Save original overflow
+            const originalOverflow = document.body.style.overflow;
+            
+            // Test 1: Create popup with debug OFF and auto-trigger ON
+            console.log('Test 1: Creating popup with debug OFF and auto-trigger ON...');
+            const popup1 = createPushPopup({
+                heading: 'Production Scroll Test',
+                text: 'This should not show in production but might affect scrolling',
+                autoTrigger: true,
+                delay: 100,
+                debugMode: false
+            });
+            
+            // Check if scrolling gets stuck after a delay
+            setTimeout(() => {
+                const isScrollDisabled = document.body.style.overflow === 'hidden';
+                console.log('Test 1 result:', isScrollDisabled ? 'FAILED - Scroll disabled' : 'PASSED - Scroll enabled');
+                
+                if (isScrollDisabled) {
+                    console.error('❌ BUG DETECTED: Body scroll was disabled without popup showing!');
+                    alert('❌ BUG DETECTED: Scrolling was disabled! Check console for details.');
+                } else {
+                    console.log('✅ Test 1 passed: Scrolling remained enabled');
+                }
+                
+                // Test 2: Force show() call
+                console.log('Test 2: Force calling show() on non-initialized popup...');
+                try {
+                    popup1.show();
+                    
+                    setTimeout(() => {
+                        const isScrollDisabled2 = document.body.style.overflow === 'hidden';
+                        console.log('Test 2 result:', isScrollDisabled2 ? 'FAILED - show() disabled scroll' : 'PASSED - show() had no effect');
+                        
+                        if (isScrollDisabled2) {
+                            console.error('❌ BUG: show() call disabled scrolling!');
+                        } else {
+                            console.log('✅ Test 2 passed: show() call had no effect on scrolling');
+                        }
+                        
+                        // Test 3: Test destroy method
+                        console.log('Test 3: Testing destroy method...');
+                        popup1.destroy();
+                        
+                        setTimeout(() => {
+                            const finalOverflow = document.body.style.overflow;
+                            console.log('Test 3 result: Final overflow =', finalOverflow || 'auto');
+                            console.log('✅ All tests completed. Check console for detailed results.');
+                            
+                            // Restore original just in case
+                            document.body.style.overflow = originalOverflow;
+                        }, 100);
+                    }, 500);
+                } catch (e) {
+                    console.log('show() call failed (expected):', e.message);
+                }
+            }, 1000);
         }
     </script>
 </body>

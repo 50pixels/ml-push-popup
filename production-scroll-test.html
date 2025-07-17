@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Production Scroll Bug Test</title>
+    <script src="script.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background: #f0f0f0;
+            /* Add lots of content to test scrolling */
+            height: 200vh;
+        }
+        
+        .content {
+            margin: 20px 0;
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+            margin-bottom: 30px;
+        }
+        
+        .test-button {
+            background: #007AFF;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 10px 0;
+        }
+        
+        .test-button:hover {
+            background: #0056CC;
+        }
+        
+        .scroll-indicator {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            background: #333;
+            color: white;
+            padding: 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            z-index: 9999;
+        }
+        
+        .scroll-status {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 4px;
+            font-family: monospace;
+        }
+        
+        .scroll-enabled {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+        
+        .scroll-disabled {
+            background: #ffebee;
+            color: #c62828;
+        }
+    </style>
+</head>
+<body>
+    <div class="scroll-indicator" id="scrollIndicator">
+        Scroll Y: <span id="scrollY">0</span><br>
+        Body Overflow: <span id="bodyOverflow">auto</span>
+    </div>
+    
+    <div class="content">
+        <h1>🐛 Production Scroll Bug Test</h1>
+        <p><strong>Issue:</strong> When debug mode is disabled, popup doesn't initialize properly but show() can still be called, setting body overflow to hidden permanently.</p>
+        
+        <div id="scrollStatus" class="scroll-status scroll-enabled">
+            ✅ Scrolling is currently enabled
+        </div>
+    </div>
+    
+    <div class="content">
+        <h3>Test Scenario 1: Simulate Production Environment</h3>
+        <p>This simulates the exact production scenario where the popup should NOT show but somehow affects scrolling.</p>
+        <button class="test-button" onclick="testProductionScenario()">Test Production Scenario (Debug OFF)</button>
+        <p id="scenario1Result">Not tested yet</p>
+    </div>
+    
+    <div class="content">
+        <h3>Test Scenario 2: Force Show() Call</h3>
+        <p>This directly tests what happens when show() is called on a non-initialized popup.</p>
+        <button class="test-button" onclick="testForceShowCall()">Force show() on Non-Initialized Popup</button>
+        <p id="scenario2Result">Not tested yet</p>
+    </div>
+    
+    <div class="content">
+        <h3>Test Scenario 3: Auto-trigger Test</h3>
+        <p>This tests the auto-trigger scenario that might cause the race condition.</p>
+        <button class="test-button" onclick="testAutoTrigger()">Test Auto-trigger with Debug OFF</button>
+        <p id="scenario3Result">Not tested yet</p>
+    </div>
+    
+    <div class="content">
+        <h3>Recovery Test</h3>
+        <p>If scrolling gets stuck, use this to test recovery methods.</p>
+        <button class="test-button" onclick="forceRestoreScroll()">Force Restore Scroll</button>
+        <button class="test-button" onclick="testDestroyMethod()">Test Destroy Method</button>
+    </div>
+    
+    <!-- Add lots more content to test scrolling -->
+    <div class="content">
+        <h3>Scroll Test Content</h3>
+        <p>This page is intentionally long to test scrolling behavior.</p>
+        <p>Scroll down to test if vertical scrolling is working...</p>
+    </div>
+    
+    <div class="content">
+        <h3>More Content</h3>
+        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+        <p>Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
+    </div>
+    
+    <div class="content">
+        <h3>Even More Content</h3>
+        <p>Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.</p>
+        <p>Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+    </div>
+    
+    <div class="content">
+        <h3>Final Content Block</h3>
+        <p>If you can see this and scroll back up, scrolling is working correctly!</p>
+        <p>Test completed successfully if scrolling never gets stuck.</p>
+    </div>
+    
+    <script>
+        // Track scroll position and body overflow
+        function updateScrollIndicator() {
+            document.getElementById('scrollY').textContent = window.scrollY;
+            document.getElementById('bodyOverflow').textContent = document.body.style.overflow || 'auto';
+            
+            // Update scroll status
+            const scrollStatus = document.getElementById('scrollStatus');
+            const isScrollDisabled = document.body.style.overflow === 'hidden';
+            
+            if (isScrollDisabled) {
+                scrollStatus.className = 'scroll-status scroll-disabled';
+                scrollStatus.innerHTML = '❌ Scrolling is DISABLED (BUG DETECTED)';
+            } else {
+                scrollStatus.className = 'scroll-status scroll-enabled';
+                scrollStatus.innerHTML = '✅ Scrolling is enabled';
+            }
+        }
+        
+        // Update indicator on scroll and periodically
+        window.addEventListener('scroll', updateScrollIndicator);
+        setInterval(updateScrollIndicator, 500);
+        
+        function testProductionScenario() {
+            console.log('🧪 Testing production scenario...');
+            
+            // Simulate production environment (non-MobiLoud app)
+            const originalUserAgent = navigator.userAgent;
+            
+            // Create popup with debug OFF and auto-trigger ON
+            const popup = createPushPopup({
+                heading: 'Production Test',
+                text: 'This should not show in production',
+                autoTrigger: true,
+                delay: 100,
+                debugMode: false // Debug OFF to simulate production
+            });
+            
+            // Check if scrolling gets stuck
+            setTimeout(() => {
+                const isScrollDisabled = document.body.style.overflow === 'hidden';
+                const result = document.getElementById('scenario1Result');
+                
+                if (isScrollDisabled) {
+                    result.innerHTML = '❌ BUG: Scrolling got disabled without popup showing!';
+                    result.style.color = 'red';
+                } else {
+                    result.innerHTML = '✅ GOOD: Scrolling remained enabled';
+                    result.style.color = 'green';
+                }
+                
+                console.log('Production scenario test result:', isScrollDisabled ? 'FAILED' : 'PASSED');
+            }, 1000);
+        }
+        
+        function testForceShowCall() {
+            console.log('🧪 Testing force show() call...');
+            
+            // Create popup without proper initialization
+            const popup = createPushPopup({
+                heading: 'Force Show Test',
+                text: 'This should not affect scrolling',
+                debugMode: false
+            });
+            
+            // Force call show() even if popup shouldn't show
+            try {
+                popup.show();
+                console.log('show() called successfully');
+            } catch (e) {
+                console.log('show() failed:', e);
+            }
+            
+            // Check if scrolling gets stuck
+            setTimeout(() => {
+                const isScrollDisabled = document.body.style.overflow === 'hidden';
+                const result = document.getElementById('scenario2Result');
+                
+                if (isScrollDisabled) {
+                    result.innerHTML = '❌ BUG: show() call disabled scrolling!';
+                    result.style.color = 'red';
+                } else {
+                    result.innerHTML = '✅ GOOD: show() call had no effect on scrolling';
+                    result.style.color = 'green';
+                }
+                
+                console.log('Force show() test result:', isScrollDisabled ? 'FAILED' : 'PASSED');
+            }, 500);
+        }
+        
+        function testAutoTrigger() {
+            console.log('🧪 Testing auto-trigger scenario...');
+            
+            // Create popup with auto-trigger but debug OFF
+            const popup = createPushPopup({
+                heading: 'Auto-trigger Test',
+                text: 'This should not show but auto-trigger is enabled',
+                autoTrigger: true,
+                delay: 200,
+                debugMode: false
+            });
+            
+            // Check if scrolling gets stuck after auto-trigger delay
+            setTimeout(() => {
+                const isScrollDisabled = document.body.style.overflow === 'hidden';
+                const result = document.getElementById('scenario3Result');
+                
+                if (isScrollDisabled) {
+                    result.innerHTML = '❌ BUG: Auto-trigger disabled scrolling!';
+                    result.style.color = 'red';
+                } else {
+                    result.innerHTML = '✅ GOOD: Auto-trigger had no effect on scrolling';
+                    result.style.color = 'green';
+                }
+                
+                console.log('Auto-trigger test result:', isScrollDisabled ? 'FAILED' : 'PASSED');
+            }, 1000);
+        }
+        
+        function forceRestoreScroll() {
+            console.log('🔧 Force restoring scroll...');
+            document.body.style.overflow = '';
+            updateScrollIndicator();
+        }
+        
+        function testDestroyMethod() {
+            console.log('🧪 Testing destroy method...');
+            
+            // Create popup and immediately destroy it
+            const popup = createPushPopup({
+                heading: 'Destroy Test',
+                text: 'This will be destroyed',
+                debugMode: false
+            });
+            
+            // Destroy it
+            popup.destroy();
+            
+            // Check if scrolling is restored
+            setTimeout(() => {
+                const isScrollDisabled = document.body.style.overflow === 'hidden';
+                console.log('Destroy method test result:', isScrollDisabled ? 'FAILED' : 'PASSED');
+            }, 100);
+        }
+        
+        console.log('Production scroll bug test page loaded');
+        console.log('Scroll down to test scrolling, then run the tests');
+        
+        // Initial update
+        updateScrollIndicator();
+    </script>
+</body>
+</html>
