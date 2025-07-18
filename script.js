@@ -47,6 +47,7 @@ class PushNotificationPopup {
             debugMode: options.debugMode || false,
             maxSessions: options.maxSessions || null,
             timeframeDays: options.timeframeDays || null,
+            initialDelay: options.initialDelay || null,
             darkMode: options.darkMode || false,
             enableAnalytics: options.enableAnalytics || false
         };
@@ -233,13 +234,17 @@ class PushNotificationPopup {
                 .find(row => row.startsWith(this.cookieName + '='));
             
             if (!cookieValue) {
-                return { count: 0, firstShown: null };
+                return { count: 0, firstShown: null, firstEligibleDate: null };
             }
             
             const data = JSON.parse(decodeURIComponent(cookieValue.split('=')[1]));
+            // Add firstEligibleDate if missing for backward compatibility
+            if (!data.hasOwnProperty('firstEligibleDate')) {
+                data.firstEligibleDate = null;
+            }
             return data;
         } catch (e) {
-            return { count: 0, firstShown: null };
+            return { count: 0, firstShown: null, firstEligibleDate: null };
         }
     }
 
@@ -254,6 +259,21 @@ class PushNotificationPopup {
         const data = this.getCookieData();
         const now = new Date().getTime();
         
+        // Handle initial delay if configured
+        if (this.options.initialDelay !== null) {
+            if (!data.firstEligibleDate) {
+                // First time - set the eligible date to now + initialDelay days
+                const firstEligibleDate = now + (this.options.initialDelay * 24 * 60 * 60 * 1000);
+                this.setCookieData({ ...data, firstEligibleDate: firstEligibleDate });
+                return false; // Don't show yet
+            }
+            
+            // Check if we've reached the eligible date
+            if (now < data.firstEligibleDate) {
+                return false; // Not yet eligible
+            }
+        }
+        
         // If no previous data, allow showing
         if (!data.firstShown) {
             return true;
@@ -263,7 +283,7 @@ class PushNotificationPopup {
         
         // If outside timeframe, reset count
         if (daysSinceFirst > this.options.timeframeDays) {
-            this.setCookieData({ count: 0, firstShown: now });
+            this.setCookieData({ count: 0, firstShown: now, firstEligibleDate: data.firstEligibleDate });
             return true;
         }
         

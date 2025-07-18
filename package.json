@@ -1,6 +1,6 @@
 {
   "name": "@mobiloud/ml-push-popup",
-  "version": "1.2.5",
+  "version": "1.2.6",
   "description": "A modern, iOS-style popup widget designed specifically for MobiLoud mobile apps to prompt users to enable push notifications",
   "main": "script.js",
   "files": [

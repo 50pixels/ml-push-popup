@@ -27,6 +27,7 @@
         <button class="btn" onclick="showCustomPopup()">🎨 Custom Styled Popup</button>
         <button class="btn" onclick="showSingleButton()">📝 Single Button (No Decline)</button>
         <button class="btn" onclick="showSessionLimitDemo()">🔢 Session Limit Demo (Max 2 times in 5 days)</button>
+        <button class="btn" onclick="showInitialDelayDemo()">⏰ Initial Delay Demo (Wait 3 seconds, then every 10 seconds)</button>
         <button class="btn" onclick="showDarkModePopup()">🌙 Dark Mode Popup</button>
         <button class="btn" onclick="showAnalyticsPopup()">📊 Analytics Enabled Popup</button>
         <button class="btn" onclick="showAnalyticsDebugPopup()">🔍 Analytics Debug Mode</button>
@@ -180,6 +181,34 @@
             });
             
             popup.show();
+        }
+
+        function showInitialDelayDemo() {
+            // Convert to milliseconds for testing (3 seconds = 3000ms = 3000/(1000*60*60*24) = 0.0347 days)
+            const initialDelayDays = 3 / (1000 * 60 * 60 * 24); // 3 seconds as days
+            const intervalDays = 10 / (1000 * 60 * 60 * 24); // 10 seconds as days
+            
+            createPushPopup({
+                heading: "⏰ Initial Delay Demo",
+                text: "This popup waits 3 seconds before first display, then shows every 10 seconds. Perfect for testing day-based delays!",
+                acceptText: "Got it!",
+                declineText: "Reset Timer",
+                successMessage: "✅ Timer demo completed!",
+                enableAnalytics: true,
+                debugMode: true,
+                initialDelay: initialDelayDays,
+                maxSessions: 1,
+                timeframeDays: intervalDays,
+                onAccept: () => {
+                    alert('Initial delay demo accepted! The popup will now wait 10 seconds before showing again.');
+                },
+                onDecline: () => {
+                    // Clear the cookie to reset the timer
+                    const cookieName = 'ml_push_popup_tracking';
+                    document.cookie = `${cookieName}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
+                    alert('Timer reset! The popup will now wait 3 seconds before showing again.');
+                }
+            }).show();
         }
 
         function showDarkModePopup() {

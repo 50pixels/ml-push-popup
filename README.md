@@ -60,6 +60,7 @@ const popup = createPushPopup({
 | `debugMode` | boolean | false | Enable testing in browsers |
 | `maxSessions` | number | null | Maximum times to show popup |
 | `timeframeDays` | number | null | Timeframe for session limit (in days) |
+| `initialDelay` | number | null | Days to wait before first display |
 | `darkMode` | boolean | false | Enable dark mode styling |
 | `enableAnalytics` | boolean | false | Enable Google Analytics event tracking |
 | `onAccept` | function | console.log | Callback when user accepts |
@@ -338,7 +339,23 @@ const popup = createPushPopup({
 });
 ```
 
-### 3. Single Button (No Decline)
+### 3. Initial Delay with Recurring Pattern
+
+Wait 5 days before first display, then show once every 2 months:
+
+```javascript
+const popup = createPushPopup({
+    heading: "Enable Notifications",
+    text: "Stay connected with important updates.",
+    enableAnalytics: true,
+    initialDelay: 5,        // Wait 5 days before first display
+    maxSessions: 1,         // Show once per timeframe
+    timeframeDays: 60,      // Every 2 months
+    autoTrigger: true
+});
+```
+
+### 4. Single Button (No Decline)
 
 ```javascript
 const popup = createPushPopup({
@@ -351,7 +368,7 @@ const popup = createPushPopup({
 });
 ```
 
-### 4. URL Targeting
+### 5. URL Targeting
 
 Show only on specific pages:
 
@@ -369,7 +386,7 @@ const popup = createPushPopup({
 });
 ```
 
-### 5. Manual Trigger
+### 6. Manual Trigger
 
 Bind to a button or link:
 
@@ -388,7 +405,7 @@ document.getElementById('my-button').addEventListener('click', () => {
 });
 ```
 
-### 6. With Callbacks
+### 7. With Callbacks
 
 ```javascript
 const popup = createPushPopup({
@@ -410,7 +427,7 @@ const popup = createPushPopup({
 });
 ```
 
-### 7. Debug Mode for Testing
+### 8. Debug Mode for Testing
 
 ```javascript
 const popup = createPushPopup({
@@ -438,7 +455,8 @@ The popup will only show when ALL conditions are met:
 1. ✅ User is in MobiLoud app (or debugMode is true)
 2. ✅ Push notifications are disabled
 3. ✅ Current URL matches allowedUrls (if specified)
-4. ✅ Session limit not exceeded (if specified)
+4. ✅ Initial delay period has passed (if specified)
+5. ✅ Session limit not exceeded (if specified)
 
 ## Session Limiting
 
@@ -453,9 +471,29 @@ const popup = createPushPopup({
 });
 ```
 
+### Initial Delay
+
+Wait a specific number of days before the popup becomes eligible to show:
+
+```javascript
+// Wait 7 days before first display, then show once every 30 days
+const popup = createPushPopup({
+    initialDelay: 7,        // Wait 7 days before first display
+    maxSessions: 1,         // Show once per timeframe
+    timeframeDays: 30,      // Every 30 days
+    autoTrigger: true
+});
+```
+
+**Common Use Cases:**
+- **New user onboarding**: `initialDelay: 3` - Let users explore for 3 days first
+- **Subscription reminders**: `initialDelay: 14, maxSessions: 1, timeframeDays: 30` - Monthly reminders after 2 weeks
+- **Re-engagement**: `initialDelay: 30, maxSessions: 1, timeframeDays: 90` - Quarterly re-engagement after 30 days
+
 The widget stores a cookie (`ml_push_popup_tracking`) with:
 - `count`: Number of times shown
 - `firstShown`: Timestamp of first display
+- `firstEligibleDate`: When popup becomes eligible to show (set by `initialDelay`)
 
 ## Styling
 
@@ -597,16 +635,19 @@ For longer-term control across page reloads, use `maxSessions` and `timeframeDay
 ```javascript
 // Cookie structure stored as 'ml_push_popup_tracking':
 {
-    count: 2,              // Times shown
-    firstShown: 1234567890 // Timestamp of first display
+    count: 2,                    // Times shown
+    firstShown: 1234567890,      // Timestamp of first display
+    firstEligibleDate: 1234567890 // When popup becomes eligible (initialDelay)
 }
 ```
 
 **Session limit logic:**
-1. First display: Creates cookie with count=1 and current timestamp
-2. Subsequent displays: Increments count if within timeframe
-3. Outside timeframe: Resets count to 1 with new timestamp
-4. At limit: Popup won't show until timeframe expires
+1. **Initial delay**: If `initialDelay` is set, creates `firstEligibleDate` = now + delay days
+2. **Eligibility check**: Popup won't show until current time >= `firstEligibleDate`
+3. **First display**: Creates cookie with count=1 and current timestamp
+4. **Subsequent displays**: Increments count if within timeframe
+5. **Outside timeframe**: Resets count to 1 with new timestamp
+6. **At limit**: Popup won't show until timeframe expires
 
 ### Push Subscription Flow
 
