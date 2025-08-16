@@ -63,6 +63,7 @@ const popup = createPushPopup({
 | `initialDelay` | number | null | Days to wait before first display |
 | `darkMode` | boolean | false | Enable dark mode styling |
 | `enableAnalytics` | boolean | false | Enable Google Analytics event tracking |
+| `colors` | object | {} | Color customization options (see Color Customization section) |
 | `onAccept` | function | console.log | Callback when user accepts |
 | `onDecline` | function | console.log | Callback when user declines |
 | `onClose` | function | console.log | Callback when popup is closed |
@@ -310,6 +311,131 @@ const popup = createPushPopup({
 - Check browser console for filtered messages
 - Ensure popup is actually being triggered
 
+## Color Customization
+
+The widget supports comprehensive color customization to match your brand identity. All color properties are optional - only specify the ones you want to customize.
+
+### Available Color Options
+
+```javascript
+const popup = createPushPopup({
+    heading: "Enable Notifications",
+    text: "Stay updated with our latest news.",
+    colors: {
+        // Button colors
+        acceptButton: '#e74c3c',        // Accept button background
+        acceptButtonHover: '#c0392b',   // Accept button hover state
+        acceptButtonText: 'white',      // Accept button text color
+        declineButton: '#3498db',       // Decline button background
+        declineButtonHover: '#2980b9',  // Decline button hover state
+        declineButtonText: 'white',     // Decline button text color
+        
+        // Close button colors
+        closeButton: '#95a5a6',         // Close button background
+        closeButtonHover: '#7f8c8d',    // Close button hover state
+        closeButtonText: 'white',       // Close button text color
+        
+        // Text and background colors
+        headingText: '#2c3e50',         // Popup heading text color
+        bodyText: '#34495e',            // Popup body text color
+        background: '#ecf0f1',          // Popup background color
+        
+        // Success message colors
+        successBackground: '#d5f4e6',   // Success message background
+        successBorder: '#27ae60',       // Success message border
+        successText: '#155724'          // Success message text color
+    }
+});
+```
+
+### Default Colors
+
+- **Accept Button**: `#007AFF` (iOS blue) with white text
+- **Decline Button**: `#f5f5f5` (light gray) with `#666` text
+- **Close Button**: `#f5f5f5` (light gray) with `#666` text
+- **Heading Text**: `#1a1a1a` (dark gray)
+- **Body Text**: `#666` (medium gray)
+- **Background**: `white`
+- **Success Theme**: Green colors (`#34c759` border, `#e8f5e9` background)
+
+### Color Customization Examples
+
+#### Brand Colors Example
+
+```javascript
+// Match your brand colors
+const popup = createPushPopup({
+    heading: "Stay Connected",
+    text: "Get updates about our products and services.",
+    colors: {
+        acceptButton: '#ff6b35',       // Brand orange
+        acceptButtonHover: '#e55a2b',  // Darker orange on hover
+        acceptButtonText: 'white',
+        background: '#f8f9fa',         // Light gray background
+        headingText: '#2c3e50'         // Dark blue-gray heading
+    }
+});
+```
+
+#### High Contrast Theme
+
+```javascript
+// High contrast for accessibility
+const popup = createPushPopup({
+    heading: "Enable Notifications",
+    text: "Stay informed with important updates.",
+    colors: {
+        acceptButton: '#000000',       // Black button
+        acceptButtonHover: '#333333',  // Dark gray hover
+        acceptButtonText: 'white',
+        declineButton: '#ffffff',      // White button
+        declineButtonHover: '#f0f0f0', // Light gray hover
+        declineButtonText: '#000000',  // Black text
+        headingText: '#000000',        // Black heading
+        bodyText: '#333333',           // Dark gray body
+        background: '#ffffff'          // White background
+    }
+});
+```
+
+#### Purple Theme Example
+
+```javascript
+// Purple brand theme
+const popup = createPushPopup({
+    heading: "Join Our Community",
+    text: "Get exclusive updates and special offers.",
+    colors: {
+        acceptButton: '#9b59b6',       // Purple
+        acceptButtonHover: '#8e44ad',  // Darker purple
+        acceptButtonText: 'white',
+        declineButton: '#bdc3c7',      // Light gray
+        declineButtonHover: '#95a5a6', // Darker gray
+        declineButtonText: '#2c3e50',  // Dark text
+        headingText: '#8e44ad',        // Purple heading
+        bodyText: '#7d3c98',           // Purple-gray body
+        successBackground: '#e8d5ff',   // Light purple
+        successBorder: '#9b59b6',      // Purple border
+        successText: '#6a1b9a'         // Dark purple text
+    }
+});
+```
+
+### Color Guidelines
+
+- **CSS Color Values**: Use any valid CSS color format (hex, rgb, rgba, hsl, named colors)
+- **Contrast**: Ensure sufficient contrast between text and background colors for accessibility
+- **Hover States**: Provide hover colors that are slightly darker or lighter than the base color
+- **Dark Mode**: The `darkMode` option will override some color settings automatically
+- **Testing**: Test your color scheme on different devices and screen types
+
+### Compatibility with Other Features
+
+- **Dark Mode**: Custom colors work alongside the `darkMode` option
+- **Analytics**: Color customization doesn't affect analytics tracking
+- **Session Limits**: Custom colors persist across popup sessions
+- **All Browsers**: Color customization works in all supported browsers
+
 ## Examples
 
 ### 1. Basic Implementation
@@ -427,7 +553,31 @@ const popup = createPushPopup({
 });
 ```
 
-### 8. Debug Mode for Testing
+### 8. Custom Brand Colors
+
+```javascript
+const popup = createPushPopup({
+    heading: "Join Our Newsletter",
+    text: "Get exclusive updates and special offers delivered to your device.",
+    enableAnalytics: true,
+    autoTrigger: true,
+    colors: {
+        acceptButton: '#e74c3c',       // Red accept button
+        acceptButtonHover: '#c0392b',  // Darker red on hover
+        acceptButtonText: 'white',
+        declineButton: '#3498db',      // Blue decline button
+        declineButtonHover: '#2980b9', // Darker blue on hover
+        declineButtonText: 'white',
+        background: '#ecf0f1',         // Light gray background
+        headingText: '#2c3e50',        // Dark heading
+        successBackground: '#d5f4e6',  // Light green success
+        successBorder: '#27ae60',      // Green border
+        successText: '#155724'         // Dark green text
+    }
+});
+```
+
+### 9. Debug Mode for Testing
 
 ```javascript
 const popup = createPushPopup({

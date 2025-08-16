@@ -49,7 +49,25 @@ class PushNotificationPopup {
             timeframeDays: options.timeframeDays || null,
             initialDelay: options.initialDelay || null,
             darkMode: options.darkMode || false,
-            enableAnalytics: options.enableAnalytics || false
+            enableAnalytics: options.enableAnalytics || false,
+            colors: {
+                acceptButton: options.colors?.acceptButton || '#007AFF',
+                acceptButtonHover: options.colors?.acceptButtonHover || '#0056CC',
+                acceptButtonText: options.colors?.acceptButtonText || 'white',
+                declineButton: options.colors?.declineButton || '#f5f5f5',
+                declineButtonHover: options.colors?.declineButtonHover || '#e5e5e5',
+                declineButtonText: options.colors?.declineButtonText || '#666',
+                closeButton: options.colors?.closeButton || '#f5f5f5',
+                closeButtonHover: options.colors?.closeButtonHover || '#e5e5e5',
+                closeButtonText: options.colors?.closeButtonText || '#666',
+                headingText: options.colors?.headingText || '#1a1a1a',
+                bodyText: options.colors?.bodyText || '#666',
+                background: options.colors?.background || 'white',
+                successBackground: options.colors?.successBackground || '#e8f5e9',
+                successBorder: options.colors?.successBorder || '#34c759',
+                successText: options.colors?.successText || '#256029',
+                ...(options.colors || {})
+            }
         };
 
         this.isVisible = false;
@@ -409,6 +427,7 @@ class PushNotificationPopup {
 
     createStyles() {
         if (!document.getElementById('ml-push-popup-styles')) {
+            const c = this.options.colors;
             const styles = `
             .ml-push-popup-overlay {
                 position: fixed;
@@ -434,7 +453,7 @@ class PushNotificationPopup {
                 bottom: 0;
                 left: 0;
                 right: 0;
-                background: white;
+                background: ${c.background};
                 border-radius: 20px 20px 0 0;
                 padding: 24px;
                 box-shadow: none; /* No shadow when hidden */
@@ -463,14 +482,14 @@ class PushNotificationPopup {
                 min-width: 32px; /* Ensure minimum width for perfect circle */
                 min-height: 32px; /* Ensure minimum height for perfect circle */
                 border: none;
-                background: #f5f5f5;
+                background: ${c.closeButton};
                 border-radius: 50%;
                 cursor: pointer;
                 display: flex;
                 align-items: center;
                 justify-content: center;
                 font-size: 18px;
-                color: #666;
+                color: ${c.closeButtonText};
                 transition: all 0.2s ease;
                 box-sizing: border-box;
                 padding: 0;
@@ -488,7 +507,7 @@ class PushNotificationPopup {
             }
 
             .ml-push-popup-close:hover {
-                background: #e5e5e5;
+                background: ${c.closeButtonHover};
                 transform: scale(1.1);
             }
             
@@ -504,7 +523,7 @@ class PushNotificationPopup {
             .ml-push-popup-heading {
                 font-size: 22px;
                 font-weight: 600;
-                color: #1a1a1a;
+                color: ${c.headingText};
                 margin: 0 0 16px 0;
                 font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             }
@@ -524,7 +543,7 @@ class PushNotificationPopup {
             .ml-push-popup-text {
                 font-size: 16px;
                 line-height: 1.5;
-                color: #666;
+                color: ${c.bodyText};
                 margin: 0 0 24px 0;
                 font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             }
@@ -570,18 +589,18 @@ class PushNotificationPopup {
             }
 
             .ml-push-popup-accept {
-                background: #007AFF;
-                color: white;
+                background: ${c.acceptButton};
+                color: ${c.acceptButtonText};
             }
 
             .ml-push-popup-accept:hover {
-                background: #0056CC;
+                background: ${c.acceptButtonHover};
                 transform: translateY(-1px);
             }
 
             .ml-push-popup-decline {
-                background: #f5f5f5;
-                color: #666;
+                background: ${c.declineButton};
+                color: ${c.declineButtonText};
             }
             
             .ml-dark-mode .ml-push-popup-decline {
@@ -590,7 +609,7 @@ class PushNotificationPopup {
             }
 
             .ml-push-popup-decline:hover {
-                background: #e5e5e5;
+                background: ${c.declineButtonHover};
             }
             
             .ml-dark-mode .ml-push-popup-decline:hover {
@@ -598,9 +617,9 @@ class PushNotificationPopup {
             }
 
             .ml-push-popup-success {
-                background: #e8f5e9;
-                border: 1.5px solid #34c759;
-                color: #256029;
+                background: ${c.successBackground};
+                border: 1.5px solid ${c.successBorder};
+                color: ${c.successText};
                 border-radius: 12px;
                 padding: 16px 24px;
                 font-weight: 600;

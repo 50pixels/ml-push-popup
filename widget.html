@@ -25,6 +25,7 @@
         <button class="btn" onclick="showAutoPopup()">🚀 Auto-trigger Popup (3s delay)</button>
         <button class="btn" onclick="showDebugMode()">🧪 Debug Mode (Browser Testing)</button>
         <button class="btn" onclick="showCustomPopup()">🎨 Custom Styled Popup</button>
+        <button class="btn" onclick="showColorCustomization()">🌈 Color Customization Demo</button>
         <button class="btn" onclick="showSingleButton()">📝 Single Button (No Decline)</button>
         <button class="btn" onclick="showSessionLimitDemo()">🔢 Session Limit Demo (Max 2 times in 5 days)</button>
         <button class="btn" onclick="showInitialDelayDemo()">⏰ Initial Delay Demo (Wait 3 seconds, then every 10 seconds)</button>
@@ -207,6 +208,65 @@
                     const cookieName = 'ml_push_popup_tracking';
                     document.cookie = `${cookieName}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
                     alert('Timer reset! The popup will now wait 3 seconds before showing again.');
+                }
+            }).show();
+        }
+
+        function showColorCustomization() {
+            createPushPopup({
+                heading: "🌈 Custom Colors",
+                text: "This popup demonstrates custom color theming! Every color can be customized to match your brand.",
+                acceptText: "Love It!",
+                declineText: "Try Another",
+                successMessage: "🎨 Colors look amazing!",
+                debugMode: true,
+                colors: {
+                    acceptButton: '#e74c3c',
+                    acceptButtonHover: '#c0392b',
+                    acceptButtonText: 'white',
+                    declineButton: '#3498db',
+                    declineButtonHover: '#2980b9',
+                    declineButtonText: 'white',
+                    closeButton: '#95a5a6',
+                    closeButtonHover: '#7f8c8d',
+                    closeButtonText: 'white',
+                    headingText: '#2c3e50',
+                    bodyText: '#34495e',
+                    background: '#ecf0f1',
+                    successBackground: '#d5f4e6',
+                    successBorder: '#27ae60',
+                    successText: '#155724'
+                },
+                onAccept: () => {
+                    alert('Custom colors demo accepted! You can customize all button, text, and background colors.');
+                },
+                onDecline: () => {
+                    // Show another color scheme
+                    createPushPopup({
+                        heading: "🎨 Purple Theme",
+                        text: "Here's another color scheme to show the flexibility of the customization system!",
+                        acceptText: "Purple Power!",
+                        declineText: "Back to Default",
+                        successMessage: "💜 Purple theme activated!",
+                        debugMode: true,
+                        colors: {
+                            acceptButton: '#9b59b6',
+                            acceptButtonHover: '#8e44ad',
+                            acceptButtonText: 'white',
+                            declineButton: '#bdc3c7',
+                            declineButtonHover: '#95a5a6',
+                            declineButtonText: '#2c3e50',
+                            headingText: '#8e44ad',
+                            bodyText: '#7d3c98',
+                            background: '#f8f9fa',
+                            successBackground: '#e8d5ff',
+                            successBorder: '#9b59b6',
+                            successText: '#6a1b9a'
+                        },
+                        onAccept: () => {
+                            alert('Purple theme accepted! All colors are fully customizable.');
+                        }
+                    }).show();
                 }
             }).show();
         }

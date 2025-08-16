@@ -46,12 +46,54 @@ The widget accepts these configuration options:
 - `allowedUrls`: Array of URL patterns where popup can show
 - `debugMode`: Bypass app/push checks for testing
 - `onAccept`/`onDecline`/`onClose`: Callback functions
+- `colors`: Object with color customization options (see Color Customization section)
+
+## Color Customization
+
+The widget supports comprehensive color customization through the `colors` option:
+
+```javascript
+const popup = createPushPopup({
+    heading: "Enable Notifications",
+    text: "Stay updated with our latest news.",
+    colors: {
+        acceptButton: '#e74c3c',        // Accept button background
+        acceptButtonHover: '#c0392b',   // Accept button hover state
+        acceptButtonText: 'white',      // Accept button text color
+        declineButton: '#3498db',       // Decline button background
+        declineButtonHover: '#2980b9',  // Decline button hover state
+        declineButtonText: 'white',     // Decline button text color
+        closeButton: '#95a5a6',         // Close button background
+        closeButtonHover: '#7f8c8d',    // Close button hover state
+        closeButtonText: 'white',       // Close button text color
+        headingText: '#2c3e50',         // Popup heading text color
+        bodyText: '#34495e',            // Popup body text color
+        background: '#ecf0f1',          // Popup background color
+        successBackground: '#d5f4e6',   // Success message background
+        successBorder: '#27ae60',       // Success message border
+        successText: '#155724'          // Success message text color
+    }
+});
+```
+
+**Default Colors:**
+- Accept Button: `#007AFF` (iOS blue)
+- Decline Button: `#f5f5f5` (light gray)
+- Text Colors: Various shades of gray/black
+- Background: `white`
+- Success: Green theme (`#34c759`)
+
+**Notes:**
+- All color properties are optional - only specify the ones you want to customize
+- Colors can be any valid CSS color value (hex, rgb, rgba, named colors, etc.)
+- Dark mode (`darkMode: true`) overrides some color settings automatically
+- Color customization works alongside all other widget features
 
 ## Testing
 
 The widget includes comprehensive debug capabilities:
 - Set `debugMode: true` to bypass all app and push status checks
-- Demo page (widget.html) provides multiple test scenarios
+- Demo page (widget.html) provides multiple test scenarios including color customization
 - Debug mode simulates push acceptance for browser testing
 
 ## MobiLoud Integration
